@@ -12,7 +12,7 @@ from transformers import AutoProcessor, AutoModelForCausalLM
 class PDFExtractor:
     def __init__(self, device=None):
         #self.device = device or ("mps" if torch.cuda.is_available() else "cpu")
-        self.device = "mps"
+        self.device = "cuda"
         #self.torch_dtype = torch.float16 if torch.cuda.is_available() else torch.float32
         self.torch_dtype = torch.float16
         print(f'Loading onto {self.device}')
@@ -131,68 +131,68 @@ class PDFExtractor:
         print(f"Image descriptions saved to {output_path}")
 
 
-class JsonCombiner:
-    def __init__(self, device=None):
-        #self.device = device or ("mps" if torch.cuda.is_available() else "cpu")
-        self.device = "mps"
-        #self.torch_dtype = torch.float16 if torch.cuda.is_available() else torch.float32
-        self.torch_dtype = torch.float16
+# class JsonCombiner:
+#     def __init__(self, device=None):
+#         #self.device = device or ("mps" if torch.cuda.is_available() else "cpu")
+#         self.device = "cuda"
+#         #self.torch_dtype = torch.float16 if torch.cuda.is_available() else torch.float32
+#         self.torch_dtype = torch.float16
 
-    def jsonCombineCreateDocList(self, input_folder):
-        self.list_docs = []
-        for file in os.listdir(input_folder):
-            filename = os.fsdecode(file)
-            if filename.endswith(".txt") or filename.endswith(".json"):
-                self.list_docs.append(file)
-        self.list_docs.sort()
+#     def jsonCombineCreateDocList(self, input_folder):
+#         self.list_docs = []
+#         for file in os.listdir(input_folder):
+#             filename = os.fsdecode(file)
+#             if filename.endswith(".txt") or filename.endswith(".json"):
+#                 self.list_docs.append(file)
+#         self.list_docs.sort()
 
-    def createJsonFromListDocs(self, input_folder, output_folder=None):
-        data = []
-        for i in range(len(self.list_docs)):
-            if ".txt" in self.list_docs[i]:
-                with open(input_folder + '/' + self.list_docs[i]) as inp:
-                    for line in inp:
-                        data.append(line)
-            if ".json" in self.list_docs[i]:
-                if "image" in self.list_docs[i]:
-                    with open(input_folder + '/' + self.list_docs[i]) as json_data:
-                        d = json.load(json_data)
-                        for key in d.keys():
-                            data.append(d[key]["<MORE_DETAILED_CAPTION>"])
-                else:
-                    with open(input_folder + '/' + self.list_docs[i]) as json_data:
-                        d = json.load(json_data)
-                        for j in range(len(d[0])):
-                            for key in d[0][j].keys():
-                                data.append(str(key) + "-" + str(d[0][j][key]))
-            #print(i)
-            if (i % 10 == 0 and i != 0):
-                combined_text = "".join(data)
-                output_path = os.path.join(output_folder, f'page_combined_txt_{(i/10)+1}.txt')
-                with open(output_path, 'w', encoding='utf-8') as f:
-                    f.write(combined_text)
-                #print(f"Text saved to {output_path}")
-                data = []
-        combined_text = "".join(data)
-        output_path = os.path.join(output_folder, f'page_combined_txt_{math.floor(i/10) + 1}.txt')
-        with open(output_path, 'w', encoding='utf-8') as f:
-            f.write(combined_text)
+#     def createJsonFromListDocs(self, input_folder, output_folder=None):
+#         data = []
+#         for i in range(len(self.list_docs)):
+#             if ".txt" in self.list_docs[i]:
+#                 with open(input_folder + '/' + self.list_docs[i]) as inp:
+#                     for line in inp:
+#                         data.append(line)
+#             if ".json" in self.list_docs[i]:
+#                 if "image" in self.list_docs[i]:
+#                     with open(input_folder + '/' + self.list_docs[i]) as json_data:
+#                         d = json.load(json_data)
+#                         for key in d.keys():
+#                             data.append(d[key]["<MORE_DETAILED_CAPTION>"])
+#                 else:
+#                     with open(input_folder + '/' + self.list_docs[i]) as json_data:
+#                         d = json.load(json_data)
+#                         for j in range(len(d[0])):
+#                             for key in d[0][j].keys():
+#                                 data.append(str(key) + "-" + str(d[0][j][key]))
+#             #print(i)
+#             if (i % 10 == 0 and i != 0):
+#                 combined_text = "".join(data)
+#                 output_path = os.path.join(output_folder, f'page_combined_txt_{(i/10)+1}.txt')
+#                 with open(output_path, 'w', encoding='utf-8') as f:
+#                     f.write(combined_text)
+#                 #print(f"Text saved to {output_path}")
+#                 data = []
+#         combined_text = "".join(data)
+#         output_path = os.path.join(output_folder, f'page_combined_txt_{math.floor(i/10) + 1}.txt')
+#         with open(output_path, 'w', encoding='utf-8') as f:
+#             f.write(combined_text)
 
 
 
 
 
 # Example Usage
-pdfs_to_process = [
-    ("./albania/national_drr_strategy.pdf", 
-     "./albania/", [11, 28, 41]),
+# pdfs_to_process = [
+#     ("./albania/national_drr_strategy.pdf", 
+#      "./albania3/", [11, 28, 41]),
      
-    # ("C:/Users/Rudy/Desktop/UN-run/another_document.pdf", 
-    #  "C:/Users/Rudy/Desktop/UN-run/another_output/", None)  # Process all pages
-]
+#     # ("C:/Users/Rudy/Desktop/UN-run/another_document.pdf", 
+#     #  "C:/Users/Rudy/Desktop/UN-run/another_output/", None)  # Process all pages
+# ]
 
-#extractor = PDFExtractor()
-#extractor.process_pdfs(pdfs_to_process)
+# extractor = PDFExtractor()
+# extractor.process_pdfs(pdfs_to_process)
 
 
 combiner = JsonCombiner()
